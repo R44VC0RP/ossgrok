@@ -1,0 +1,57 @@
+# fly.toml app configuration file generated for ossgrok
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+
+app = "ossgrok"
+primary_region = "iad"
+
+[build]
+  dockerfile = "deployments/docker/Dockerfile.server"
+
+[env]
+  SERVER_HTTP_PORT = "8080"
+  SERVER_HTTPS_PORT = "8443"
+  SERVER_WS_PORT = "4443"
+  AUTOCERT_CACHE_DIR = "/var/lib/autocert"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[http_service.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+# HTTPS traffic for tunnels (port 8443)
+[[services]]
+  internal_port = 8443
+  protocol = "tcp"
+  auto_stop_machines = false
+  auto_start_machines = true
+
+  [[services.ports]]
+    port = 8443
+    handlers = ["tls"]
+
+# WebSocket control plane (port 4443)
+[[services]]
+  internal_port = 4443
+  protocol = "tcp"
+  auto_stop_machines = false
+  auto_start_machines = true
+
+  [[services.ports]]
+    port = 4443
+    handlers = ["tls"]
+
+[mounts]
+  source = "autocert_cache"
+  destination = "/var/lib/autocert"
