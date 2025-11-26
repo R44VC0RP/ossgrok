@@ -236,6 +236,38 @@ ossgrok/
 - **No Authentication**: Current implementation has no authentication (suitable for private networks)
 - **Port Access**: Ensure ports 80, 443, and 4443 are properly firewalled
 
+## Testing Your Server
+
+Before using the client, verify your server is running correctly:
+
+### Quick Test (Bash)
+
+```bash
+./test-server.sh ossgrok.sevalla.app
+```
+
+### Comprehensive Test (Go)
+
+```bash
+go run cmd/test/main.go ossgrok.sevalla.app
+```
+
+This will test:
+- HTTP endpoint accessibility
+- HTTPS endpoint with TLS
+- WebSocket control plane connectivity
+- WebSocket protocol (registration)
+
+Expected output when server is healthy:
+```
+✓ HTTP endpoint is accessible
+✓ HTTPS endpoint is accessible
+✓ WebSocket endpoint is accessible and accepting connections
+✓ WebSocket protocol is working correctly
+
+Passed: 4/4 tests
+```
+
 ## Troubleshooting
 
 ### Certificate Issues
