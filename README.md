@@ -132,20 +132,20 @@ Internet → Server (80/443) → Domain Router → Tunnel Registry
 
 ### Environment Variables
 
-- `SERVER_HTTP_PORT` (default: `80`) - HTTP port for ACME challenges
-- `SERVER_HTTPS_PORT` (default: `443`) - HTTPS port for tunnel traffic
+- `SERVER_HTTP_PORT` (default: `8080`) - HTTP port for ACME challenges (use 8080 for PaaS platforms, 80 for VPS)
+- `SERVER_HTTPS_PORT` (default: `8443`) - HTTPS port for tunnel traffic (use 8443 for PaaS platforms, 443 for VPS)
 - `SERVER_WS_PORT` (default: `4443`) - WebSocket port for control plane
 - `AUTOCERT_DOMAINS` (required) - Comma-separated list of allowed domains
 - `AUTOCERT_EMAIL` (optional) - Email for Let's Encrypt notifications
 - `AUTOCERT_CACHE_DIR` (default: `/var/lib/autocert`) - Certificate cache directory
 - `LOG_LEVEL` (default: `info`) - Log level (debug/info/warn/error)
 
-### Example Docker Run
+### Example Docker Run (VPS with root access)
 
 ```bash
 docker run -d \
-  -p 80:80 \
-  -p 443:443 \
+  -p 80:8080 \
+  -p 443:8443 \
   -p 4443:4443 \
   -e AUTOCERT_DOMAINS=tunnel.example.com \
   -e AUTOCERT_EMAIL=admin@example.com \
@@ -154,6 +154,25 @@ docker run -d \
   --name ossgrok-server \
   ossgrok-server
 ```
+
+### Deploying to PaaS (Railway, Sevalla, Render, etc.)
+
+When deploying to platforms like Railway, Sevalla, or Render, the platform handles SSL/TLS termination and routing. Configure:
+
+**Environment Variables:**
+```
+AUTOCERT_DOMAINS=yourdomain.com,*.yourdomain.com
+AUTOCERT_EMAIL=your-email@example.com
+SERVER_HTTP_PORT=8080
+SERVER_HTTPS_PORT=8443
+SERVER_WS_PORT=4443
+```
+
+**Important Notes:**
+- The platform's reverse proxy will handle ports 80/443 and forward to your app's high ports (8080/8443)
+- Let's Encrypt will work through the platform's HTTP-01 challenge on port 8080
+- Point your DNS to the platform's provided domain
+- For Sevalla: Use the "Expose HTTP traffic" setting and configure port 8080
 
 ## Development
 
