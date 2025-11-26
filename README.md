@@ -15,6 +15,18 @@ A self-hostable ngrok alternative for HTTP/HTTPS tunneling. Expose your local de
 
 ### 1. Deploy the Server
 
+**Recommended: Deploy to Railway (Easiest)**
+
+See [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) for detailed Railway deployment instructions.
+
+Quick steps:
+1. Push this repo to GitHub
+2. Create new Railway project from GitHub repo
+3. Set environment variables (see Railway guide)
+4. Deploy and get your URL (e.g., `ossgrok-production.up.railway.app`)
+
+**Alternative: Self-hosted VPS**
+
 **Prerequisites:**
 - A server with Docker installed
 - A domain pointing to your server (e.g., `tunnel.example.com`)
