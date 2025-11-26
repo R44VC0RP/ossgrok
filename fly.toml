@@ -39,7 +39,6 @@ primary_region = "iad"
 
   [[services.ports]]
     port = 8443
-    handlers = ["tls"]
 
 # WebSocket control plane (port 4443)
 [[services]]
@@ -50,7 +49,6 @@ primary_region = "iad"
 
   [[services.ports]]
     port = 4443
-    handlers = ["tls"]
 
 [mounts]
   source = "autocert_cache"
