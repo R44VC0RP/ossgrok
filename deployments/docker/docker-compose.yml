@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: ../..
+      dockerfile: deployments/docker/Dockerfile.server
+    ports:
+      - "80:80"
+      - "443:443"
+      - "4443:4443"
+    environment:
+      - AUTOCERT_DOMAINS=tunnel.example.com
+      - AUTOCERT_EMAIL=admin@example.com
+      - LOG_LEVEL=info
+    volumes:
+      - autocert-cache:/var/lib/autocert
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ../..
+      dockerfile: deployments/docker/Dockerfile.client
+    network_mode: host
+    volumes:
+      - client-config:/root/.ossgrok
+    command: ["--url", "development.example.com", "3000"]
+    depends_on:
+      - server
+
+volumes:
+  autocert-cache:
+  client-config:

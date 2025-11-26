@@ -1,0 +1,45 @@
+# Build stage
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /build
+
+# Copy go mod files
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build server binary
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o ossgrok-server ./cmd/server
+
+# Runtime stage
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+# Copy binary from build stage
+COPY --from=builder /build/ossgrok-server .
+
+# Create autocert cache directory
+RUN mkdir -p /var/lib/autocert && chmod 755 /var/lib/autocert
+
+# Expose ports
+EXPOSE 80 443 4443
+
+# Set environment variables (can be overridden)
+ENV SERVER_HTTP_PORT=80 \
+    SERVER_HTTPS_PORT=443 \
+    SERVER_WS_PORT=4443 \
+    AUTOCERT_CACHE_DIR=/var/lib/autocert \
+    LOG_LEVEL=info
+
+# Run as non-root user
+RUN adduser -D -u 1000 ossgrok && \
+    chown -R ossgrok:ossgrok /app /var/lib/autocert
+
+USER ossgrok
+
+CMD ["./ossgrok-server"]
